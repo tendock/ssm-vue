@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.SupplierMapper">
+
+
+    <insert id="addSupplier" parameterType="supplier">
+        insert into supplier (SUPPLIER_NAME, SUPPLIER_LEADER, SUPPLIER_TEL,
+                              SUPPLIER_EMAIL, SUPPLIER_ADDRESS, CREATE_TIME, UPDATE_TIME, IS_DELETE)
+        values (#{supplierName},#{supplierLeader},#{supplierTel},
+                #{supplierEmail},#{supplierAddress},#{createTime},now(),#{isDelete})
+    </insert>
+    <update id="updateSupplier" parameterType="supplier">
+        update supplier
+        <set>
+            <if test="supplierName!=null and supplierName!=''">SUPPLIER_NAME=#{supplierName},</if>
+            <if test="supplierLeader!=null and supplierLeader!=''">SUPPLIER_LEADER=#{supplierLeader},</if>
+            <if test="supplierTel!=null and supplierTel!=''">SUPPLIER_TEL=#{supplierTel},</if>
+            <if test="supplierEmail!=null and supplierEmail!=''">SUPPLIER_EMAIL=#{supplierEmail},</if>
+            <if test="supplierAddress!=null and supplierAddress!=''">SUPPLIER_ADDRESS=#{supplierAddress},</if>
+            <if test="createTime!=null">CREATE_TIME=#{createTime},</if>
+            <if test="isDelete!=null">IS_DELETE=#{isDelete},</if>
+            update_time=now()
+        </set>
+        where supplier_id=#{supplierId}
+    </update>
+    <delete id="deleteSupplier">
+        update supplier set IS_DELETE = 0 where SUPPLIER_ID in
+        <foreach collection="list" separator="," open="(" close=")" item="s">
+            #{s}
+        </foreach>
+
+    </delete>
+    <select id="getSupplierList"  resultType="com.dock.entity.Supplier">
+        select *from supplier
+        <where>
+            <if test="supplierName!=null and supplierName!=''">and supplier_name like concat('%',#{supplierName},'%')</if>
+        </where>
+    </select>
+    <select id="getSupplier" parameterType="integer" resultType="com.dock.entity.Supplier">
+        select *from supplier where SUPPLIER_ID=#{supplierId}
+    </select>
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.RecordInMapper">
+
+    <insert id="addRecordIn" parameterType="recordIn">
+        insert into record_in (SUPPLIER_ID, PRODUCT_ID, RECORD_IN_NUMBER, RECORD_IN_TIME,
+                               USER_ID, REPO_ID, REMARKS, CREATE_TIME, UPDATE_TIME, IS_DELETE)
+            values (#{supplierId},#{productId},#{recordInNumber},now(),#{userId},
+                    #{repoId},#{remarks},now(),now(),1)
+    </insert>
+    <select id="todayIn" resultType="java.lang.Integer">
+        select sum(RECORD_IN_NUMBER) from record_in where DATE_FORMAT(CREATE_TIME,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+    </select>
+    <select id="showMonth" resultType="com.dock.entity.EveryStock">
+        select re.repo_name as name,r.REPO_ID,sum(RECORD_IN_NUMBER) as value from record_in r left join repository re on r.REPO_ID=re.REPO_ID where r.CREATE_TIME > DATE_SUB(NOW(),INTERVAL 1 month) GROUP BY REPO_ID order by REPO_ID
+    </select>
+</mapper>

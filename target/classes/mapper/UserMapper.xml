@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.UserMapper">
+
+    <insert id="addUser" parameterType="user" useGeneratedKeys="true" keyProperty="userId">
+        insert into user (USER_NAME, USER_TEL, USER_EMAIL, USER_NICK, PASSWORD, SALT, CREATE_TIME, UPDATE_TIME, IS_DELETE, AVATAR) VALUES
+        (#{userName},#{userTel},#{userEmail},#{userNick},#{password},#{salt},#{createTime},now(),#{isDelete},#{avatar})
+    </insert>
+    <update id="updateUser" parameterType="user" >
+        update user
+        <set>
+            <if test="userName!=null and userName!=''">user_name=#{userName},</if>
+            <if test="userTel!=null and userTel!=''">user_tel=#{userTel},</if>
+            <if test="userEmail!=null and userEmail!=''">user_email=#{userEmail},</if>
+            <if test="userNick!=null and userNick!=''">user_nick=#{userNick},</if>
+            <if test="password!=null and password!=''">password=#{password},</if>
+            <if test="salt!=null and salt!=''">salt=#{salt},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="isDelete!=null">is_delete=#{isDelete},</if>
+            <if test="avatar!=null and avatar!=''">avatar=#{avatar},</if>
+            update_time=now()
+        </set>
+            where user_id=#{userId}
+    </update>
+    <delete id="deleteUser">
+        update user set IS_DELETE = 0 where USER_ID in
+        <foreach collection="list" open="(" close=")" separator="," item="u">
+            #{u}
+        </foreach>
+    </delete>
+    <resultMap id="userMap" type="user">
+        <id property="userId" column="user_id"/>
+        <collection property="deptIdList" javaType="list" column="user_id" select="com.dock.mapper.UserDepartmentMapper.getDeptIdList"/>
+        <collection property="deptList" javaType="list" column="user_id" select="com.dock.mapper.UserDepartmentMapper.getDeptList"/>
+        <collection property="roleIdList" javaType="list" column="user_id" select="com.dock.mapper.UserRoleMapper.getRoleIdList"/>
+        <collection property="roleList" javaType="list" column="user_id" select="com.dock.mapper.UserRoleMapper.getRoleList"/>
+    </resultMap>
+    <select id="getUserList" resultMap="userMap">
+        select * from user
+        <where>
+            <if test="userName!=null and userName!=''">and user_name like concat('%',#{userName},'%')</if>
+            <if test="userTel!=null and userTel!=''">and user_tel like concat('%',#{userTel},'%')</if>
+            <if test="start!=null and end!=null">and create_time >= #{start} and create_time <![CDATA[<=]]> #{end}</if>
+        </where>
+    </select>
+    <select id="getUser" resultMap="userMap">
+        select * from user where user_email=#{userEmail} and password=#{password}
+    </select>
+    <select id="getUserByEmail" resultMap="userMap">
+        select * from user where USER_EMAIL=#{userEmail}
+    </select>
+</mapper>

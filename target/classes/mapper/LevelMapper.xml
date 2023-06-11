@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.LevelMapper">
+
+    <insert id="levelAdd" parameterType="level">
+        insert into level (LEVEL_NAME, CREATE_TIME,UPDATE_TIME,IS_DELETE)
+        values (#{levelName},#{createTime},now(),#{isDelete})
+    </insert>
+    <update id="levelUpdate" parameterType="level">
+        update level
+        <set>
+            <if test="levelName!=null and levelName!=''">level_name=#{levelName},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="isDelete!=null">is_delete=#{isDelete}</if>
+        </set>
+        where level_id=#{levelId}
+    </update>
+    <delete id="levelDelete">
+        update level set IS_DELETE=0 where LEVEL_ID in
+        <foreach collection="list" item="l" open="(" separator="," close=")">
+            #{l}
+        </foreach>
+    </delete>
+    <select id="levelList" resultType="level">
+        select *from level
+    </select>
+    <select id="getLevel" resultType="com.dock.entity.Level" parameterType="integer">
+        select *from level where LEVEL_ID=#{levelId}
+    </select>
+</mapper>

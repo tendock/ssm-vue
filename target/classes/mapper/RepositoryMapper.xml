@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.RepositoryMapper">
+
+    <insert id="addRepository" parameterType="repository" useGeneratedKeys="true" keyProperty="repoId">
+        insert into repository
+        (REPO_ADDRESS, REPO_AREA, REPO_DESC, REPO_STATUS,
+         CREATE_TIME, UPDATE_TIME, IS_DELETE, REPO_NAME)
+        values
+        (#{repoAddress},#{repoArea},#{repoDesc},#{repoStatus},
+         #{createTime},now(),#{isDelete},#{repoName})
+    </insert>
+    <update id="updateRepository" parameterType="repository">
+        update repository
+        <set>
+            <if test="repoAddress!=null and repoAddress!=''">REPO_ADDRESS=#{repoAddress},</if>
+            <if test="repoArea!=null and repoArea!=''">REPO_AREA=#{repoArea},</if>
+            <if test="repoDesc!=null and repoDesc!=''">REPO_DESC=#{repoDesc},</if>
+            <if test="repoStatus!=null">REPO_STATUS=#{repoStatus},</if>
+            <if test="createTime!=null">CREATE_TIME=#{createTime},</if>
+            <if test="isDelete!=null">is_delete=#{isDelete},</if>
+            <if test="repoName!=null and repoName!=''">repo_name=#{repoName},</if>
+            update_time=now()
+        </set>
+            where repo_id=#{repoId}
+    </update>
+    <delete id="deleteRepository">
+        update repository set IS_DELETE = 0 where REPO_ID in
+        <foreach collection="list" item="r" separator="," open="(" close=")">
+            #{r}
+        </foreach>
+    </delete>
+    <select id="getRepositoryList" resultType="com.dock.entity.Repository">
+        select * from repository
+        <where>
+            <if test="repoName!=null and repoName!=''"> and repo_name like concat('%',#{repoName},'%')</if>
+            <if test="start!=null and end!=null"> and create_time >= #{start} and create_time <![CDATA[<=]]> #{end}</if>
+        </where>
+    </select>
+    <select id="getRepo" resultType="com.dock.entity.Repository" parameterType="integer">
+        select * from repository where REPO_ID=#{repoId}
+    </select>
+</mapper>

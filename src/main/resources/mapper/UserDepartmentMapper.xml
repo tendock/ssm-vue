@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.UserDepartmentMapper">
+    <insert id="addUserDept" parameterType="userDepartment">
+        insert into user_department (DEPT_ID, USER_ID, CREATE_TIME, UPDATE_TIME, IS_DELETE) VALUES
+        <foreach collection="list" item="ud" separator=",">
+            (#{ud.deptId},#{ud.userId},#{ud.createTime},now(),#{ud.isDelete})
+        </foreach>
+    </insert>
+    <update id="updateUserDeptList">
+        update user_department set IS_DELETE =#{isDelete} where user_id =#{userId}
+    </update>
+    <delete id="deleteUserDeptList">
+        update user_department set IS_DELETE = 0 where USER_ID in
+        <foreach collection="list" item="ud" close=")" open="(" separator=",">
+            #{ud}
+        </foreach>
+    </delete>
+    <delete id="deleteByUserId" parameterType="integer">
+        delete from user_department where USER_ID=#{userId}
+    </delete>
+    <!--根据userId查询部门id-->
+    <select id="getDeptIdList" resultType="java.lang.Integer">
+        select dept_id from user_department where USER_ID=#{userId}
+    </select>
+    <select id="getDeptList" resultType="com.dock.entity.Department">
+        select * from department where DEPT_ID in
+            (select dept_id from user_department where USER_ID=#{userId})
+    </select>
+</mapper>

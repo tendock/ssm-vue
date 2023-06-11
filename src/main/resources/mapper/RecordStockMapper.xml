@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.RecordStockMapper">
+    <insert id="addRes" parameterType="recordStock">
+        insert into record_stock
+            (PRODUCT_ID, REPO_ID, PRODUCT_STOCK, CREATE_TIME, UPDATE_TIME, IS_DELETE)
+            values
+            (#{productId},#{repoId},#{productStock},now(),now(),1)
+    </insert>
+    <update id="updateRes" parameterType="recordStock">
+        update record_stock set PRODUCT_STOCK = PRODUCT_STOCK+#{productStock}
+        where repo_id=#{repoId} and product_id=#{productId}
+    </update>
+    <resultMap id="resMap" type="recordStock">
+        <id property="productId" column="product_id"/>
+        <id property="repoId" column="repo_id"/>
+        <association property="repository" column="repo_id" javaType="repository" select="com.dock.mapper.RepositoryMapper.getRepo"/>
+        <association property="product" column="product_id" javaType="product" select="com.dock.mapper.ProductMapper.getProduct"/>
+    </resultMap>
+    <select id="getResList" resultMap="resMap">
+        select * from record_stock
+        <where>
+            <if test="repoName!=null and repoName!=''">and repo_id in (select repo_id from repository where repo_name like concat('%',#{repoName},'%'))</if>
+            <if test="productName!=null and productName!=''">and product_id in (select product_id from product where product_name like concat('%',#{productName},'%'))</if>
+        </where>
+    </select>
+    <select id="getRes" resultType="com.dock.entity.RecordStock">
+        select * from record_stock where REPO_ID=#{repoId} and product_id=#{productId}
+    </select>
+    <select id="getNums" resultType="java.lang.Integer">
+        select PRODUCT_STOCK from record_stock where REPO_ID=#{repoId} and product_id =#{productId}
+    </select>
+    <select id="todayStock" resultType="java.lang.Integer">
+        select sum(PRODUCT_STOCK) from record_stock
+    </select>
+    <select id="getEveryStock" resultType="everyStock">
+        select r.repo_name as name,rs.repo_id,sum(rs.PRODUCT_STOCK) as value from record_stock rs inner join repository r on  rs.repo_id=r.repo_id GROUP BY REPO_ID
+    </select>
+</mapper>

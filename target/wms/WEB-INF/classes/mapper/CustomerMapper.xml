@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.CustomerMapper">
+
+    <insert id="addCustomer" parameterType="customer">
+        insert into customer (CUSTOMER_NAME, CUSTOMER_LEADER, CUSTOMER_TEL, CUSTOMER_EMAIL, CUSTOMER_ADDRESS, LEVEL_ID, SOURCE_ID, INDUSTRY_ID, CREATE_TIME, UPDATE_TIME, IS_DELETE)
+        values (#{customerName},#{customerLeader},#{customerTel},#{customerEmail},#{customerAddress},#{levelId},#{sourceId},#{industryId},#{createTime},now(),#{isDelete})
+    </insert>
+    <update id="updateCustomer" parameterType="customer">
+        update customer
+        <set>
+            <if test="customerName!=null and customerName!=''">CUSTOMER_NAME=#{customerName},</if>
+            <if test="customerLeader!=null and customerLeader!=''">CUSTOMER_LEADER=#{customerLeader},</if>
+            <if test="customerTel!=null and customerTel!=''">CUSTOMER_TEL=#{customerTel},</if>
+            <if test="customerEmail!=null and customerEmail!=''">CUSTOMER_EMAIL=#{customerEmail},</if>
+            <if test="customerAddress!=null and customerAddress!=''">CUSTOMER_ADDRESS=#{customerAddress},</if>
+            <if test="levelId!=null">LEVEL_ID=#{levelId},</if>
+            <if test="sourceId!=null">SOURCE_ID=#{sourceId},</if>
+            <if test="industryId!=null">INDUSTRY_ID=#{industryId},</if>
+            <if test="createTime!=null">CREATE_TIME=#{createTime},</if>
+            <if test="isDelete!=null">IS_DELETE=#{isDelete},</if>
+            update_time =now()
+        </set>
+        where customer_id=#{customerId}
+    </update>
+    <delete id="deleteCustomer">
+        update customer set IS_DELETE = 0 where CUSTOMER_ID in
+        <foreach collection="list" item="c" close=")" open="(" separator=",">
+            #{c}
+        </foreach>
+    </delete>
+    <resultMap id="cMap" type="customer">
+        <id property="customerId" column="customer_id"/>
+        <result property="levelId" column="level_id"/>
+        <result property="industryId" column="industry_id"/>
+        <result property="sourceId" column="source_id"/>
+        <association property="source" column="source_id" javaType="source" select="com.dock.mapper.SourceMapper.getSourceById"/>
+        <association property="industry" column="industry_id" javaType="industry" select="com.dock.mapper.IndustryMapper.getIndustryById"/>
+        <association property="level" column="level_id" javaType="level" select="com.dock.mapper.LevelMapper.getLevel"/>
+    </resultMap>
+    <select id="getCustomerList" resultMap="cMap">
+        select * from customer
+        <where>
+            <if test="customerName!=null and customerName!=''">and CUSTOMER_NAME like concat('%',#{customerName},'%')</if>
+            <if test="customerTel!=null and customerTel!=''">and CUSTOMER_TEL like concat('%',#{customerTel},'%')</if>
+           <if test="start!=null and end!= null">and create_time >= #{start} and create_time <![CDATA[<=]]> #{end}</if>
+        </where>
+    </select>
+    <select id="getCustomer"  resultMap="cMap">
+        select *from customer where CUSTOMER_ID=#{customerId}
+    </select>
+    <select id="getCustomerByName" resultType="com.dock.entity.Customer">
+        select * from customer
+        <where>
+            <if test="customerName!=null and customerName!=''">and customer_name like concat('%',#{customerName},'%')</if>
+        </where>
+    </select>
+</mapper>

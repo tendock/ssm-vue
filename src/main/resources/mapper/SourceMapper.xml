@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.SourceMapper">
+    <insert id="addSource" parameterType="source">
+        insert into source (SOURCE_NAME, CREATE_TIME, UPDATE_TIME, IS_DELETE) VALUES
+        (#{sourceName},#{createTime},now(),#{isDelete})
+    </insert>
+    <update id="updateSource" parameterType="source">
+        update source
+        <set>
+            <if test="sourceName!=null and sourceName!=''">source_name=#{sourceName},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="isDelete!=null">is_delete=#{isDelete},</if>
+            update_time= now()
+        </set>
+        where SOURCE_ID=#{sourceId}
+    </update>
+    <delete id="deleteSource" >
+        update source set IS_DELETE=0 where SOURCE_ID in
+        <foreach collection="list" item="s" open="(" separator="," close=")">
+            #{s}
+        </foreach>
+    </delete>
+    <select id="getSource" resultType="com.dock.entity.Source">
+        select * from source
+    </select>
+    <select id="getSourceById" resultType="com.dock.entity.Source" parameterType="integer">
+        select * from source where SOURCE_ID=#{sourceId}
+    </select>
+
+</mapper>

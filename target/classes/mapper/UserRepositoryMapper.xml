@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.UserRepositoryMapper">
+
+    <insert id="addUserRepo" parameterType="userRepository">
+        insert into user_repository (REPO_ID, USER_ID, CREATE_TIME, UPDATE_TIME, IS_DELETE) VALUES
+        (#{repoId},#{userId},#{createTime},now(),#{isDelete})
+    </insert>
+    <delete id="deleteUserRepo" parameterType="integer">
+        delete from user_repository where REPO_ID=#{repoId}
+    </delete>
+    <select id="getUserRepoList" resultType="com.dock.entity.UserRepository">
+        select * from user_repository where USER_ID=#{userId}
+    </select>
+</mapper>

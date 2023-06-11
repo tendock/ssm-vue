@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.IndustryMapper">
+
+    <insert id="addIndustry" parameterType="industry">
+        insert into industry (INDUSTRY_NAME, CREATE_TIME, UPDATE_TIME, IS_DELETE) VALUES
+        (#{industryName},#{createTime},now(),#{isDelete})
+    </insert>
+    <update id="updateIndustry" parameterType="industry">
+        update industry
+        <set>
+            <if test="industryName!=null and industryName!=''">industry_name=#{industryName},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="isDelete!=null">is_delete=#{isDelete},</if>
+        </set>
+            where industry_id=#{industryId}
+    </update>
+    <delete id="deleteIndustry" parameterType="integer">
+        update industry set IS_DELETE=0 where INDUSTRY_ID in
+        <foreach collection="list" item="i" close=")" separator="," open="(">
+            #{i}
+        </foreach>
+    </delete>
+    <select id="getIndustryList" resultType="com.dock.entity.Industry">
+        select *from industry
+    </select>
+    <select id="getIndustryById" resultType="com.dock.entity.Industry" parameterType="integer">
+        select *from industry where INDUSTRY_ID=#{industryId}
+    </select>
+</mapper>

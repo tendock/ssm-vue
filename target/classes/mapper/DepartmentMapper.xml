@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dock.mapper.DepartmentMapper">
+
+    <insert id="addDept" parameterType="department">
+        insert into department (dept_name, level, parent_id, create_time, update_time, is_delete)
+        values (#{deptName},#{level},#{parentId},#{createTime},now(),1)
+    </insert>
+    <delete id="deleteDept" parameterType="integer">
+        update department set IS_DELETE=0 where DEPT_ID=#{deptId}
+    </delete>
+    <resultMap id="deptMap" type="department">
+        <id property="deptId" column="dept_id"/>
+        <collection property="subDepartmentList" column="dept_id" javaType="list" select="com.dock.mapper.DepartmentMapper.getDeptListByPid"/>
+    </resultMap>
+    <select id="getDeptList" resultMap="deptMap">
+        select *from department where PARENT_ID=0
+    </select>
+    <select id="getDeptListByPid" resultMap="deptMap">
+        select * from department where PARENT_ID=#{deptId}
+    </select>
+    <update id="updateDept" parameterType="department">
+        update department
+        <set>
+            <if test="deptName!=null and deptName!=''">dept_name=#{deptName},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            update_time=now()
+        </set>
+        where dept_id=#{deptId}
+    </update>
+</mapper>
